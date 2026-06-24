@@ -1,50 +1,3 @@
-#  Revision day 2 - Test Score Calculator with Loops
-
-## fork and clone this repo : 
-
-Build an interactive **Test Score Calculator** that:
-1. Lets students **enter multiple test scores** (one by one)
-2. **Loops through all scores** to calculate the average
-3. Uses **operators** to determine a letter grade (A, B, C, D, F)
-4. Displays a **visual star rating** (⭐) based on score
-5. Shows all scores in a **numbered list**
-
----
-
-## **Visual Example:**
-
-```
-INPUT FORM:
-┌──────────────────────────────────┐
-│ Enter a test score:              │
-│ [85                            ] │
-│ [Add Score] [Clear All]          │
-└──────────────────────────────────┘
-
-RESULTS (appears below):
-┌──────────────────────────────────┐
-│ Your Scores:                     │
-│ 1. 85                            │
-│ 2. 92                            │
-│ 3. 78                            │
-│                                  │
-│ Average: 85                      │
-│ Grade: B (85%)                   │
-│ Rating: ⭐⭐⭐⭐ (4 stars)         │
-│                                  │
-│ Test Count: 3                    │
-│ Best Score: 92                   │
-│ Lowest Score: 78                 │
-└──────────────────────────────────┘
-```
-
----
-
-## **HTML Starter Code:**
-
-Copy and save this as `calculator.html`:
-
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -263,12 +216,20 @@ Copy and save this as `calculator.html`:
   </div>
 
   <script>
-    // Array to store scores
+    // Array to store all scores
     let scores = [];
 
-    // Get HTML elements
+    //HTML elements 
     const scoreInput = document.getElementById("scoreInput");
-
+    const addBtn = document.getElementById("addBtn");
+    const clearBtn = document.getElementById("clearBtn");
+    const scoreList = document.getElementById("scoreList");
+    const testCount = document.getElementById("testCount");
+    const averageDisplay = document.getElementById("average");
+    const bestScoreDisplay = document.getElementById("bestScore");
+    const lowestScoreDisplay = document.getElementById("lowestScore");
+    const gradeDisplay = document.getElementById("gradeDisplay");
+    const starDisplay = document.getElementById("starDisplay");
 
     // ============================================
     // TODO 1: Write the addScore() function
@@ -283,21 +244,29 @@ Copy and save this as `calculator.html`:
     // 4. Call updateResults() function
     
     function addScore() {
-      // YOUR CODE HERE
+      const value = scoreInput.value.trim();
+
+      if (value === "") {
+        alert("Please enter a score");
+        return;
+      }
+
+      const score = parseFloat(value);
+      if (Number.isNaN(score) || score < 0 || score > 100) {
+        alert("Score must be between 0-100");
+        return;
+      }
+
+      scores.push(score);
+      scoreInput.value = "";
+      updateResults();
     }
 
-    // ============================================
-    // TODO 2: Write the clearAllScores() function
-    // ============================================
-    // This function should:
-    // 1. Empty the scores array (scores = [])
-    // 2. Clear the scoreInput field
-    // 3. Call updateResults() function
-    
     function clearAllScores() {
-      // YOUR CODE HERE
+      scores = [];
+      scoreInput.value = "";
+      updateResults();
     }
-
     // ============================================
     // TODO 3: Write the updateResults() function
     // ============================================
@@ -343,7 +312,72 @@ Copy and save this as `calculator.html`:
     // - Update starDisplay with the stars
     
     function updateResults() {
-      // YOUR CODE HERE
+      scoreList.innerHTML = "";
+
+      if (scores.length === 0) {
+        const emptyMessage = document.createElement("div");
+        emptyMessage.className = "empty-message";
+        emptyMessage.textContent = "No scores yet. Add your first score! 👆";
+        scoreList.appendChild(emptyMessage);
+
+        testCount.textContent = "0";
+        averageDisplay.textContent = "--";
+        bestScoreDisplay.textContent = "--";
+        lowestScoreDisplay.textContent = "--";
+        gradeDisplay.textContent = "--";
+        starDisplay.textContent = "";
+        return;
+      }
+
+      for (let i = 0; i < scores.length; i++) {
+        const scoreItem = document.createElement("div");
+        scoreItem.className = "score-item";
+        scoreItem.textContent = `${i + 1}. ${scores[i]}`;
+        scoreList.appendChild(scoreItem);
+      }
+
+      testCount.textContent = scores.length.toString();
+
+      let sum = 0;
+      let maxScore = scores[0];
+      let minScore = scores[0];
+
+      for (let i = 0; i < scores.length; i++) {
+        const current = scores[i];
+        sum += current;
+        if (current > maxScore) {
+          maxScore = current;
+        }
+        if (current < minScore) {
+          minScore = current;
+        }
+      }
+
+      const average = sum / scores.length;
+      averageDisplay.textContent = average.toFixed(1);
+      bestScoreDisplay.textContent = maxScore.toString();
+      lowestScoreDisplay.textContent = minScore.toString();
+
+      const roundedAverage = Math.round(average);
+      let grade = "F";
+      let stars = "⭐";
+
+      if (roundedAverage >= 90) {
+        grade = "A";
+        stars = "⭐⭐⭐⭐⭐";
+      } else if (roundedAverage >= 80) {
+        grade = "B";
+        stars = "⭐⭐⭐⭐";
+      } else if (roundedAverage >= 70) {
+        grade = "C";
+        stars = "⭐⭐⭐";
+      } else if (roundedAverage >= 60) {
+        grade = "D";
+        stars = "⭐⭐";
+      }
+
+      gradeDisplay.textContent = grade;
+      starDisplay.textContent = stars;
     }
 
     // Add event listeners
@@ -362,101 +396,3 @@ Copy and save this as `calculator.html`:
   </script>
 </body>
 </html>
-```
-
----
-
-## **The 3 Functions You Need to Write:**
-
-### **Function 1: addScore()**
-
-**Requirements:**
-- Get the value from `scoreInput`
-- Validate it's not empty → show alert if empty
-- Validate it's between 0-100 → show alert if not
-- Use `scores.push()` to add it to the array
-- Clear the input field
-- Call `updateResults()`
-
-**Hints:**
-- Check if empty: `if (!score)`
-- Check range: `if (score < 0 || score > 100)`
-
----
-
-### **Function 2: clearAllScores()**
-
-**Requirements:**
-- Empty the scores array
-- Clear the input field
-- Call `updateResults()`
-
----
-
-### **Function 3: updateResults() - The Complex One!**
-
-#### **Part A: Display the Score List**
-
-**Requirements:**
-- Clear the `scoreList` element
-- If array is empty: show "No scores yet. Add your first score! "
-- If array has scores: **Use `.forEach()`** to loop through and display each one
-  - Display format: "1. 85", "2. 92", etc.
-  - Create a `<div>` with class "score-item" for each
-  - 
-**Hint:** `.forEach((element, index) => { })` gives you each element AND its position
----
-
-#### **Part B: Calculate Statistics**
-
-**Requirements:**
-- Update `testCount` with array length
-- If array is empty: set average, bestScore, lowestScore to "--"
-- If array has values:
-  - **Calculate AVERAGE**
-    - Round using `Math.round()`
-  - **Find BEST SCORE**
-    - Return the highest number
-  - **Find LOWEST SCORE**
-    - Return the lowest number
-
-**Hints:**
-- `.reduce((sum, score) => sum + score, 0)` adds all scores
-- `.reduce((max, score) => score > max ? score : max, scores[0])` finds max
-- Or use `Math.max(...scores)` to find maximum
-
----
-
-#### **Part C: Determine Grade**
-
-**Requirements:**
-- Calculate the average (from Part B)
-- Use **if/else operators** to assign grade:
-  - `avg >= 90` → "A" with 5 stars ⭐⭐⭐⭐⭐
-  - `avg >= 80` → "B" with 4 stars ⭐⭐⭐⭐
-  - `avg >= 70` → "C" with 3 stars ⭐⭐⭐
-  - `avg >= 60` → "D" with 2 stars ⭐⭐
-  - `avg < 60` → "F" with 1 star ⭐
-- Update `gradeDisplay` and `starDisplay`
-
----
-
-## **Testing Checklist:**
-
-Before submitting, test these:
-
-- [ ] Type a valid score and click "Add Score" → Score appears in list with number
-- [ ] Type multiple scores → All show in numbered list (1., 2., 3., etc.)
-- [ ] Average calculates correctly (use calculator to check)
-- [ ] Best Score shows the highest number you entered
-- [ ] Lowest Score shows the lowest number you entered
-- [ ] Grade displays correctly based on your average
-- [ ] Stars update when you add new scores
-- [ ] Type invalid score "150" → Shows alert saying "between 0-100"
-- [ ] Type nothing → Shows alert saying "enter a score"
-- [ ] Click "Clear All" → Everything resets to empty
-- [ ] Press Enter key after typing → Score adds (if working)
-
-
-## Submit the link to your github repository
-
